@@ -3,10 +3,12 @@ import { useCallback, useEffect, useState } from "react";
 const apiBase = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export const apiFetch = async <T,>(path: string, options: RequestInit = {}): Promise<T> => {
+  const token = localStorage.getItem("pp_token");
   const response = await fetch(`${apiBase}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
   });
@@ -18,6 +20,8 @@ export const apiFetch = async <T,>(path: string, options: RequestInit = {}): Pro
 
   return response.json() as Promise<T>;
 };
+
+export const getApiBase = () => apiBase;
 
 export const useApi = <T,>(path: string, initial: T) => {
   const [data, setData] = useState<T>(initial);

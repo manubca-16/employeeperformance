@@ -1,12 +1,12 @@
 import { Outlet, Navigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
 import AppSidebar from "@/components/AppSidebar";
 import AppHeader from "@/components/AppHeader";
 import ActivityPulse from "@/components/ActivityPulse";
 
 const DashboardLayout = () => {
-  const { user } = useAuth();
-  if (!user) return <Navigate to="/signin" replace />;
+  const { user, token } = useAuth();
+  if (!user || !token) return <Navigate to="/signin" replace />;
 
   return (
     <div className="flex min-h-screen w-full">

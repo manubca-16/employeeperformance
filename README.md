@@ -1,73 +1,218 @@
-# Welcome to your Lovable project
+# PerfTrack
 
-## Project info
+PerfTrack is an employee performance and task management system with role-based access for:
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+- `SUPERADMIN`
+- `ADMIN`
+- `HR`
+- `EMPLOYEE`
 
-## How can I edit this code?
+It includes:
 
-There are several ways of editing your application.
+- employee performance dashboards
+- employee and bonus management
+- task assignment and editing
+- Excel/CSV task upload for Super Admin
+- bonus and escalation tracking
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Frontend:
 
-Changes made via Lovable will be committed automatically to this repo.
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+- React Router
+- Recharts
 
-**Use your preferred IDE**
+Backend:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js
+- Express
+- MongoDB
+- Mongoose
+- JWT auth
+- Multer
+- SheetJS (`xlsx`)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Project Structure
 
-Follow these steps:
+```text
+employeeperformance-main/
+├─ backend/                 # Express + MongoDB API
+├─ public/                  # Static frontend assets
+├─ src/                     # React frontend
+├─ package.json             # Frontend scripts
+└─ README.md
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Roles
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Super Admin
 
-# Step 3: Install the necessary dependencies.
-npm i
+- full access across the app
+- can upload task sheets
+- can create, edit, export, and delete tasks
+- can bulk delete tasks
+- can access the dedicated task upload route
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Admin / HR
+
+- high-authority access
+- can view all tasks, employees, bonuses, and escalations
+- can edit task details
+- cannot use the protected task upload route
+
+### Employee
+
+- can view only their own tasks and dashboard data
+- can see bonus eligibility and escalation notices on their tasks
+
+## Task Upload Feature
+
+Super Admin can upload `.xlsx` or `.csv` files from the task upload page:
+
+- route: `/dashboard/tasks/upload`
+- protected by role guard in the frontend
+- protected by JWT + role middleware in the backend
+
+Supported upload behavior:
+
+- drag and drop upload
+- file preview before submission
+- row validation
+- employee matching by name or employee ID
+- summary of inserted and skipped rows
+- downloadable sample template
+
+## Setup
+
+## 1. Frontend
+
+From the project root:
+
+```bash
+npm install
+```
+
+Run the frontend:
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Frontend usually runs on:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```text
+http://localhost:5173
+```
 
-**Use GitHub Codespaces**
+## 2. Backend
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Go to the backend folder:
 
-## What technologies are used for this project?
+```bash
+cd backend
+npm install
+```
 
-This project is built with:
+Create `backend/.env`:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```env
+PORT=4000
+CORS_ORIGIN=http://localhost:5173
+MONGODB_URI=mongodb://127.0.0.1:27017/employeeperformance
+JWT_SECRET=change_this_to_a_strong_secret
+```
 
-## How can I deploy this project?
+Run the backend:
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+```bash
+npm run dev
+```
 
-## Can I connect a custom domain to my Lovable project?
+Backend runs on:
 
-Yes, you can!
+```text
+http://localhost:4000
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 3. Seed Data
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+To seed sample backend data:
+
+```bash
+cd backend
+npm run seed
+```
+
+## Scripts
+
+Frontend:
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run test
+```
+
+Backend:
+
+```bash
+npm run dev
+npm run start
+npm run seed
+```
+
+## Important Routes
+
+Frontend:
+
+- `/signin`
+- `/dashboard`
+- `/dashboard/employees`
+- `/dashboard/tasks`
+- `/dashboard/tasks/upload`
+- `/dashboard/performance`
+- `/dashboard/bonuses`
+- `/dashboard/announcements`
+- `/dashboard/reports`
+- `/dashboard/settings`
+
+Backend API:
+
+- `POST /api/auth/login`
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `PUT /api/tasks/:taskId`
+- `DELETE /api/tasks/:taskId`
+- `DELETE /api/tasks/bulk-delete`
+- `GET /api/tasks/template`
+- `POST /api/upload-tasks`
+
+## Notes
+
+- The frontend now stores both the logged-in user and JWT token in local storage.
+- Task and upload APIs require authentication.
+- The upload flow uses lazy-loaded `xlsx` on the frontend to reduce the initial bundle size.
+- Some optional features from the product spec are still not implemented, such as comments, reminders, audit logs, and email notifications.
+
+## Current Status
+
+Working:
+
+- lint passes
+- frontend build passes
+- protected task upload route exists
+- role-based task management works
+- bonus and escalation visibility is integrated into dashboards
+
+Still worth improving:
+
+- add backend automated tests
+- test the upload flow with more real spreadsheets
+- optimize chart bundle size further
+- add more robust role/permission coverage across all routes

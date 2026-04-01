@@ -7,8 +7,16 @@ const TaskSchema = new mongoose.Schema(
     description: { type: String, required: true },
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
     deadline: { type: Date, required: true },
+    priority: { type: String, enum: ["Low", "Medium", "High"], default: "Medium" },
     status: { type: String, enum: ["Completed", "Pending", "Overdue"], required: true },
-    bonusOpportunity: { type: String }
+    taskAssigned: { type: Boolean, default: true },
+    bonusApplicable: { type: Boolean, default: false },
+    bonusOpportunity: { type: String },
+    escalation: {
+      flag: { type: Boolean, default: false },
+      reason: { type: String, default: "" },
+    },
+    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );

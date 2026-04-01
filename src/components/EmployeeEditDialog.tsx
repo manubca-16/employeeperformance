@@ -13,6 +13,7 @@ interface EmployeeEditDialogProps {
 const EmployeeEditDialog = ({ open, employee, onOpenChange, onSaved }: EmployeeEditDialogProps) => {
   const [form, setForm] = useState<Employee | null>(employee);
   const [saving, setSaving] = useState(false);
+  const isCreating = !form?._id;
 
   useEffect(() => {
     setForm(employee);
@@ -30,8 +31,8 @@ const EmployeeEditDialog = ({ open, employee, onOpenChange, onSaved }: EmployeeE
     if (!form) return;
     setSaving(true);
     try {
-      await apiFetch(`/api/employees/${form._id}`, {
-        method: "PUT",
+      await apiFetch(isCreating ? "/api/employees" : `/api/employees/${form._id}`, {
+        method: isCreating ? "POST" : "PUT",
         body: JSON.stringify({
           name: form.name,
           email: form.email,
@@ -42,7 +43,7 @@ const EmployeeEditDialog = ({ open, employee, onOpenChange, onSaved }: EmployeeE
           bonusStatus: form.bonusStatus,
         }),
       });
-      onSaved();
+      await onSaved();
       onOpenChange(false);
     } finally {
       setSaving(false);
@@ -53,7 +54,7 @@ const EmployeeEditDialog = ({ open, employee, onOpenChange, onSaved }: EmployeeE
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Employee</DialogTitle>
+          <DialogTitle>{isCreating ? "Add Employee" : "Edit Employee"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div>
@@ -138,7 +139,7 @@ const EmployeeEditDialog = ({ open, employee, onOpenChange, onSaved }: EmployeeE
             onClick={handleSave}
             disabled={saving}
           >
-            Save
+            {saving ? (isCreating ? "Creating..." : "Saving...") : isCreating ? "Create" : "Save"}
           </button>
         </DialogFooter>
       </DialogContent>

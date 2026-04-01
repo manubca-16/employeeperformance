@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
 import PerformanceCard from "@/components/PerformanceCard";
 import { useApi } from "@/hooks/useApi";
 import { Employee } from "@/types/models";

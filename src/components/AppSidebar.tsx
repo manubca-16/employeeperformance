@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
+import { Role } from "@/types/models";
+import { isHighAuthority, isSuperAdmin } from "@/lib/roles";
 import {
   LayoutDashboard, Users, ClipboardList, BarChart3, Gift,
-  Megaphone, FileText, Settings, ChevronLeft, ChevronRight, LogOut,
+  Megaphone, FileText, Settings, ChevronLeft, ChevronRight, LogOut, UploadCloud,
 } from "lucide-react";
 
 const allMenuItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", roles: ["ADMIN", "HR", "EMPLOYEE"] },
-  { label: "Employees", icon: Users, path: "/dashboard/employees", roles: ["ADMIN", "HR"] },
-  { label: "Tasks", icon: ClipboardList, path: "/dashboard/tasks", roles: ["ADMIN", "HR", "EMPLOYEE"] },
-  { label: "Performance", icon: BarChart3, path: "/dashboard/performance", roles: ["ADMIN", "HR", "EMPLOYEE"] },
-  { label: "Bonuses", icon: Gift, path: "/dashboard/bonuses", roles: ["ADMIN", "HR", "EMPLOYEE"] },
-  { label: "Announcements", icon: Megaphone, path: "/dashboard/announcements", roles: ["ADMIN", "HR", "EMPLOYEE"] },
-  { label: "Reports", icon: FileText, path: "/dashboard/reports", roles: ["ADMIN", "HR"] },
-  { label: "Settings", icon: Settings, path: "/dashboard/settings", roles: ["ADMIN"] },
+  { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", roles: ["SUPERADMIN", "ADMIN", "HR", "EMPLOYEE"] as Role[] },
+  { label: "Employees", icon: Users, path: "/dashboard/employees", roles: ["SUPERADMIN", "ADMIN", "HR"] as Role[] },
+  { label: "Tasks", icon: ClipboardList, path: "/dashboard/tasks", roles: ["SUPERADMIN", "ADMIN", "HR", "EMPLOYEE"] as Role[] },
+  { label: "Task Upload", icon: UploadCloud, path: "/dashboard/tasks/upload", roles: ["SUPERADMIN"] as Role[] },
+  { label: "Performance", icon: BarChart3, path: "/dashboard/performance", roles: ["SUPERADMIN", "ADMIN", "HR", "EMPLOYEE"] as Role[] },
+  { label: "Bonuses", icon: Gift, path: "/dashboard/bonuses", roles: ["SUPERADMIN", "ADMIN", "HR", "EMPLOYEE"] as Role[] },
+  { label: "Announcements", icon: Megaphone, path: "/dashboard/announcements", roles: ["SUPERADMIN", "ADMIN", "HR", "EMPLOYEE"] as Role[] },
+  { label: "Reports", icon: FileText, path: "/dashboard/reports", roles: ["SUPERADMIN", "ADMIN", "HR"] as Role[] },
+  { label: "Settings", icon: Settings, path: "/dashboard/settings", roles: ["SUPERADMIN"] as Role[] },
 ];
 
 const AppSidebar = () => {
@@ -23,9 +26,15 @@ const AppSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const menuItems = allMenuItems.filter((item) =>
-    user ? item.roles.includes(user.role) : false
-  );
+  const menuItems = allMenuItems.filter((item) => {
+    if (!user) return false;
+    if (item.path === "/dashboard/settings") return isSuperAdmin(user.role);
+    if (item.path === "/dashboard/tasks/upload") return isSuperAdmin(user.role);
+    if (item.path === "/dashboard/employees" || item.path === "/dashboard/reports") {
+      return isHighAuthority(user.role);
+    }
+    return item.roles.includes(user.role);
+  });
 
   return (
     <aside
@@ -44,7 +53,9 @@ const AppSidebar = () => {
       {/* Nav */}
       <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
-          const active = location.pathname === item.path;
+          const active =
+            location.pathname === item.path ||
+            (item.path === "/dashboard/tasks" && location.pathname.startsWith("/dashboard/tasks") && location.pathname !== "/dashboard/tasks/upload");
           return (
             <button
               key={item.path}

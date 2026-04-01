@@ -1,4 +1,4 @@
-export type Role = "ADMIN" | "HR" | "EMPLOYEE";
+export type Role = "SUPERADMIN" | "ADMIN" | "HR" | "EMPLOYEE";
 
 export interface User {
   _id: string;
@@ -22,8 +22,10 @@ export interface Bonus {
 export interface Employee {
   _id: string;
   legacyId?: string;
+  employeeId?: string;
   name: string;
   email: string;
+  role?: Role;
   department: string;
   tasksAssigned: number;
   tasksCompleted: number;
@@ -41,8 +43,16 @@ export interface Task {
   description: string;
   assignedTo: string | Employee;
   deadline: string;
-  status: "Completed" | "Pending" | "Overdue";
+  priority?: "Low" | "Medium" | "High";
+  status: "Completed" | "Pending" | "Overdue" | "In Progress";
+  taskAssigned?: boolean;
+  bonusApplicable?: boolean;
   bonusOpportunity?: string;
+  escalation?: {
+    flag: boolean;
+    reason: string;
+  };
+  uploadedBy?: string | User;
 }
 
 export interface BonusAnnouncement {

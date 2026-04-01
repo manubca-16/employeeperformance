@@ -1,4 +1,4 @@
-import { Users, ClipboardList, TrendingUp, Megaphone } from "lucide-react";
+import { Users, ClipboardList, TrendingUp, Megaphone, Flag } from "lucide-react";
 import KpiCard from "@/components/KpiCard";
 import { useApi } from "@/hooks/useApi";
 import { BonusAnnouncement, Employee, Task } from "@/types/models";
@@ -100,6 +100,55 @@ const HrDashboard = () => {
               ))
             )}
           </div>
+        </div>
+      </div>
+
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="p-6 border-b border-border">
+          <h3 className="font-heading font-semibold">Task Oversight</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-secondary/50">
+                <th className="text-left px-6 py-3 font-heading font-medium text-muted-foreground">Task</th>
+                <th className="text-left px-6 py-3 font-heading font-medium text-muted-foreground">Assigned To</th>
+                <th className="text-center px-6 py-3 font-heading font-medium text-muted-foreground">Bonus</th>
+                <th className="text-center px-6 py-3 font-heading font-medium text-muted-foreground">Escalation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task) => {
+                const assigned = task.assignedTo as Employee | string;
+                return (
+                  <tr key={task._id} className="border-b border-border last:border-0">
+                    <td className="px-6 py-4">
+                      <p className="font-medium">{task.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{task.description}</p>
+                    </td>
+                    <td className="px-6 py-4 text-muted-foreground">
+                      {typeof assigned === "object" ? assigned.name : "-"}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${task.bonusApplicable ? "bg-data-green/10 text-data-green" : "bg-secondary text-muted-foreground"}`}>
+                        {task.bonusApplicable ? "Yes" : "No"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {task.escalation?.flag ? (
+                        <span className="inline-flex items-center gap-2 text-amber-600" title={task.escalation.reason || "Escalated"}>
+                          <Flag size={14} />
+                          {task.escalation.reason || "Escalated"}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">No</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

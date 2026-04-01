@@ -3,8 +3,10 @@ const mongoose = require("mongoose");
 const EmployeeSchema = new mongoose.Schema(
   {
     legacyId: { type: String, index: true },
+    employeeId: { type: String, index: true, sparse: true },
     name: { type: String, required: true },
     email: { type: String, required: true },
+    role: { type: String, enum: ["SUPERADMIN", "ADMIN", "HR", "EMPLOYEE"], default: "EMPLOYEE" },
     department: { type: String, required: true },
     tasksAssigned: { type: Number, default: 0 },
     tasksCompleted: { type: Number, default: 0 },

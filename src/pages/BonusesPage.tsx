@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
 import { apiFetch, useApi } from "@/hooks/useApi";
 import { BonusAnnouncement, Employee } from "@/types/models";
 import { Gift } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { isEmployee, isHighAuthority } from "@/lib/roles";
 
 const BonusesPage = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN";
+  const canManageBonuses = isHighAuthority(user?.role);
   const { data: announcements } = useApi<BonusAnnouncement[]>("/api/bonus-announcements", []);
   const { data: employees, refetch } = useApi<Employee[]>("/api/employees", []);
   const [bonusOpen, setBonusOpen] = useState(false);
@@ -24,7 +25,7 @@ const BonusesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-heading font-bold">Bonuses</h2>
-        {isAdmin && (
+        {canManageBonuses && (
           <button
             className="bg-bonus text-bonus-foreground px-4 py-2 rounded-md text-sm font-heading font-medium hover:opacity-90 transition-opacity"
             onClick={() => setBonusOpen(true)}
@@ -56,7 +57,7 @@ const BonusesPage = () => {
         )}
       </div>
 
-      {!user || user.role !== "EMPLOYEE" ? (
+      {!isEmployee(user?.role) ? (
         <div className="bg-card border border-border rounded-lg p-6">
           <h3 className="font-heading font-semibold mb-4">Awarded Bonuses</h3>
           <div className="space-y-3">

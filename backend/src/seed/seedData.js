@@ -4,7 +4,7 @@ module.exports = {
       legacyId: "u1",
       name: "Super Admin",
       email: "superadmin@company.com",
-      role: "ADMIN",
+      role: "SUPERADMIN",
       department: "Management",
       password: "SuperAdmin@123"
     }
@@ -12,8 +12,10 @@ module.exports = {
   employees: [
     {
       legacyId: "e1",
+      employeeId: "EMP-001",
       name: "Priya Patel",
       email: "priya@company.com",
+      role: "EMPLOYEE",
       department: "Engineering",
       tasksAssigned: 12,
       tasksCompleted: 10,
@@ -24,8 +26,10 @@ module.exports = {
     },
     {
       legacyId: "e2",
+      employeeId: "EMP-002",
       name: "Arjun Mehta",
       email: "arjun@company.com",
+      role: "EMPLOYEE",
       department: "Design",
       tasksAssigned: 8,
       tasksCompleted: 6,
@@ -36,8 +40,10 @@ module.exports = {
     },
     {
       legacyId: "e3",
+      employeeId: "EMP-003",
       name: "Sneha Reddy",
       email: "sneha@company.com",
+      role: "EMPLOYEE",
       department: "Marketing",
       tasksAssigned: 10,
       tasksCompleted: 10,
@@ -48,8 +54,10 @@ module.exports = {
     },
     {
       legacyId: "e4",
+      employeeId: "EMP-004",
       name: "Vikram Singh",
       email: "vikram@company.com",
+      role: "EMPLOYEE",
       department: "Engineering",
       tasksAssigned: 15,
       tasksCompleted: 11,
@@ -60,8 +68,10 @@ module.exports = {
     },
     {
       legacyId: "e5",
+      employeeId: "EMP-005",
       name: "Kavitha Nair",
       email: "kavitha@company.com",
+      role: "EMPLOYEE",
       department: "Sales",
       tasksAssigned: 9,
       tasksCompleted: 8,
@@ -72,8 +82,10 @@ module.exports = {
     },
     {
       legacyId: "e6",
+      employeeId: "EMP-006",
       name: "Rahul Desai",
       email: "rahul@company.com",
+      role: "EMPLOYEE",
       department: "Engineering",
       tasksAssigned: 11,
       tasksCompleted: 9,

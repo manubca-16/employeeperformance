@@ -1,13 +1,27 @@
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
 import { apiFetch, useApi } from "@/hooks/useApi";
 import { Employee } from "@/types/models";
 import EmployeeEditDialog from "@/components/EmployeeEditDialog";
 import { Pencil, Trash2 } from "lucide-react";
+import { isHighAuthority } from "@/lib/roles";
+
+const createEmptyEmployee = (): Employee => ({
+  _id: "",
+  name: "",
+  email: "",
+  department: "",
+  tasksAssigned: 0,
+  tasksCompleted: 0,
+  kpiScore: 0,
+  bonusStatus: "Not Applicable",
+  weeklyPerformance: [],
+  dailyPerformance: [],
+});
 
 const EmployeesPage = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN";
+  const canManageEmployees = isHighAuthority(user?.role);
   const { data: employees, refetch } = useApi<Employee[]>("/api/employees", []);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
@@ -15,8 +29,11 @@ const EmployeesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-heading font-bold">Employees</h2>
-        {isAdmin && (
-          <button className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-heading font-medium hover:opacity-90 transition-opacity">
+        {canManageEmployees && (
+          <button
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-heading font-medium hover:opacity-90 transition-opacity"
+            onClick={() => setEditingEmployee(createEmptyEmployee())}
+          >
             Add Employee
           </button>
         )}
@@ -32,7 +49,7 @@ const EmployeesPage = () => {
                 <th className="text-left px-6 py-3 font-heading font-medium text-muted-foreground">Department</th>
                 <th className="text-center px-6 py-3 font-heading font-medium text-muted-foreground">KPI</th>
                 <th className="text-center px-6 py-3 font-heading font-medium text-muted-foreground">Bonus</th>
-                {isAdmin && <th className="text-right px-6 py-3 font-heading font-medium text-muted-foreground">Actions</th>}
+                {canManageEmployees && <th className="text-right px-6 py-3 font-heading font-medium text-muted-foreground">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -48,7 +65,7 @@ const EmployeesPage = () => {
                       emp.bonusStatus === "Eligible" ? "status-pending" : "bg-secondary text-muted-foreground"
                     }`}>{emp.bonusStatus}</span>
                   </td>
-                  {isAdmin && (
+                  {canManageEmployees && (
                     <td className="px-6 py-4 text-right">
                       <button
                         className="p-1.5 hover:bg-secondary rounded-md transition-colors text-primary"

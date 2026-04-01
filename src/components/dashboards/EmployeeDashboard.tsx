@@ -2,7 +2,7 @@ import { ClipboardList, CheckCircle, TrendingUp } from "lucide-react";
 import KpiCard from "@/components/KpiCard";
 import PerformanceCard from "@/components/PerformanceCard";
 import StatusTag from "@/components/StatusTag";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
 import { useApi } from "@/hooks/useApi";
 import { BonusAnnouncement, Employee, Task } from "@/types/models";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -90,6 +90,17 @@ const EmployeeDashboard = () => {
                     <td className="px-6 py-4">
                       <p className="font-medium">{t.title}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{t.description}</p>
+                      {t.bonusApplicable && (
+                        <p className="mt-2 inline-flex rounded-full bg-data-green/10 px-2.5 py-1 text-xs font-medium text-data-green">
+                          Bonus Eligible
+                        </p>
+                      )}
+                      {t.escalation?.flag && (
+                        <div className="mt-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                          <p className="font-semibold">Escalation Notice</p>
+                          <p className="mt-1">{t.escalation.reason || "This task has been escalated."}</p>
+                        </div>
+                      )}
                       {t.bonusOpportunity && (
                         <p className="text-xs text-bonus font-medium mt-1">{t.bonusOpportunity}</p>
                       )}

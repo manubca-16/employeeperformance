@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
 import { Search, Bell } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { BonusAnnouncement } from "@/types/models";
+import { formatRoleLabel } from "@/lib/roles";
 
 const AppHeader = () => {
   const { user } = useAuth();
@@ -75,7 +76,7 @@ const AppHeader = () => {
           </div>
           <div className="hidden sm:block">
             <p className="text-sm font-heading font-medium leading-none">{user?.name}</p>
-            <p className="text-xs text-muted-foreground">{user?.role}</p>
+            <p className="text-xs text-muted-foreground">{formatRoleLabel(user?.role)}</p>
           </div>
         </div>
       </div>

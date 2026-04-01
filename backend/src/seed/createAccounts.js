@@ -77,8 +77,10 @@ const createAccounts = async () => {
     // 4. Create/Update Employee Record for John Doe
     const employeeProfileData = {
       legacyId: "e101",
+      employeeId: "EMP-101",
       name: "John Doe",
       email: "john.doe@company.com",
+      role: "EMPLOYEE",
       department: "Engineering",
       tasksAssigned: 5,
       tasksCompleted: 3,
