@@ -2,12 +2,21 @@ const XLSX = require("xlsx");
 const mongoose = require("mongoose");
 const Task = require("../models/Task");
 const User = require("../models/User");
+const Activity = require("../models/Activity");
 const Employee = require("../models/Employee");
 const { parsePagination } = require("../utils/pagination");
 
 const isObjectId = (value) => mongoose.Types.ObjectId.isValid(value);
 const PRIORITIES = ["Low", "Medium", "High"];
 const TASK_STATUSES = ["Pending", "In Progress", "Completed", "Overdue"];
+
+const createActivitySafely = async (payload) => {
+  try {
+    await Activity.create(payload);
+  } catch (error) {
+    console.error("Failed to create task activity", error);
+  }
+};
 
 const normalizeBool = (value) => {
   if (typeof value === "boolean") return value;
@@ -178,6 +187,14 @@ exports.create = async (req, res, next) => {
     const task = await Task.create(payload);
 
     await Employee.updateOne({ _id: assignedTo }, { $inc: { tasksAssigned: 1 } });
+    const employee = await Employee.findById(assignedTo);
+    if (employee) {
+      await createActivitySafely({
+        text: `${employee.name} assigned '${title}'`,
+        timestamp: "Just now",
+        type: "task"
+      });
+    }
 
     const createdTask = await mapTaskResponse(Task.findById(task._id));
     res.status(201).json(createdTask);
@@ -244,6 +261,14 @@ exports.update = async (req, res, next) => {
     const task = await mapTaskResponse(
       Task.findOneAndUpdate(query, updates, { new: true, runValidators: true }),
     );
+
+    if (updates.status === "Completed" && existingTask.status !== "Completed" && task.assignedTo) {
+      await createActivitySafely({
+        text: `${task.assignedTo.name} completed '${task.title}'`,
+        timestamp: "Just now",
+        type: "task"
+      });
+    }
 
     res.json(task);
   } catch (error) {
