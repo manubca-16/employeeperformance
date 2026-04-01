@@ -6,8 +6,12 @@ import { BonusAnnouncement, Employee, Task } from "@/types/models";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import EmployeeEditDialog from "@/components/EmployeeEditDialog";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAuth } from "@/context/useAuth";
+import { isSuperAdmin } from "@/lib/roles";
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
+  const canManageBonusAnnouncements = isSuperAdmin(user?.role);
   const { data: employees, refetch: refetchEmployees } = useApi<Employee[]>("/api/employees", []);
   const { data: tasks, refetch: refetchTasks } = useApi<Task[]>("/api/tasks", []);
   const { data: announcements, refetch: refetchAnnouncements } = useApi<BonusAnnouncement[]>(
@@ -181,14 +185,16 @@ const AdminDashboard = () => {
         <div className="bg-card border border-border rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading font-semibold">Bonus Announcements</h3>
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 bg-bonus text-bonus-foreground px-3 py-2 rounded-md text-sm font-heading font-medium hover:opacity-90 transition-opacity"
-              onClick={() => setAnnounceOpen(true)}
-            >
-              <Plus size={16} />
-              Add Announcement
-            </button>
+            {canManageBonusAnnouncements ? (
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 bg-bonus text-bonus-foreground px-3 py-2 rounded-md text-sm font-heading font-medium hover:opacity-90 transition-opacity"
+                onClick={() => setAnnounceOpen(true)}
+              >
+                <Plus size={16} />
+                Add Announcement
+              </button>
+            ) : null}
           </div>
           <div className="space-y-3">
             {announcements.length === 0 ? (
@@ -297,104 +303,106 @@ const AdminDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={announceOpen} onOpenChange={setAnnounceOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Bonus Announcement</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <input
-              placeholder="Title"
-              className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
-              value={announcementForm.title}
-              onChange={(e) => setAnnouncementForm({ ...announcementForm, title: e.target.value })}
-            />
-            <textarea
-              placeholder="Description"
-              rows={2}
-              className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm font-body resize-none"
-              value={announcementForm.description}
-              onChange={(e) => setAnnouncementForm({ ...announcementForm, description: e.target.value })}
-            />
-            <div className="grid grid-cols-2 gap-3">
+      {canManageBonusAnnouncements ? (
+        <Dialog open={announceOpen} onOpenChange={setAnnounceOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Bonus Announcement</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
               <input
-                type="number"
-                placeholder="Amount"
-                className="px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
-                value={announcementForm.amount}
-                onChange={(e) => setAnnouncementForm({ ...announcementForm, amount: e.target.value })}
+                placeholder="Title"
+                className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
+                value={announcementForm.title}
+                onChange={(e) => setAnnouncementForm({ ...announcementForm, title: e.target.value })}
               />
+              <textarea
+                placeholder="Description"
+                rows={2}
+                className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm font-body resize-none"
+                value={announcementForm.description}
+                onChange={(e) => setAnnouncementForm({ ...announcementForm, description: e.target.value })}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  className="px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
+                  value={announcementForm.amount}
+                  onChange={(e) => setAnnouncementForm({ ...announcementForm, amount: e.target.value })}
+                />
+                <input
+                  type="date"
+                  className="px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
+                  value={announcementForm.date}
+                  onChange={(e) => setAnnouncementForm({ ...announcementForm, date: e.target.value })}
+                />
+              </div>
+              <select
+                className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
+                value={announcementForm.taskId}
+                onChange={(e) => setAnnouncementForm({ ...announcementForm, taskId: e.target.value })}
+              >
+                <option value="">Link to task (optional)</option>
+                {tasks.map((task) => (
+                  <option key={task._id} value={task._id}>
+                    {task.title}
+                  </option>
+                ))}
+              </select>
               <input
-                type="date"
-                className="px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
-                value={announcementForm.date}
-                onChange={(e) => setAnnouncementForm({ ...announcementForm, date: e.target.value })}
+                placeholder="Bonus opportunity text for task (optional)"
+                className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
+                value={announcementForm.bonusOpportunity}
+                onChange={(e) => setAnnouncementForm({ ...announcementForm, bonusOpportunity: e.target.value })}
               />
             </div>
-            <select
-              className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
-              value={announcementForm.taskId}
-              onChange={(e) => setAnnouncementForm({ ...announcementForm, taskId: e.target.value })}
-            >
-              <option value="">Link to task (optional)</option>
-              {tasks.map((task) => (
-                <option key={task._id} value={task._id}>
-                  {task.title}
-                </option>
-              ))}
-            </select>
-            <input
-              placeholder="Bonus opportunity text for task (optional)"
-              className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm font-body"
-              value={announcementForm.bonusOpportunity}
-              onChange={(e) => setAnnouncementForm({ ...announcementForm, bonusOpportunity: e.target.value })}
-            />
-          </div>
-          <DialogFooter>
-            <button
-              type="button"
-              className="bg-secondary text-foreground px-4 py-2 rounded-md text-sm font-heading font-medium"
-              onClick={() => setAnnounceOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="bg-bonus text-bonus-foreground px-4 py-2 rounded-md text-sm font-heading font-medium"
-              onClick={async () => {
-                await apiFetch("/api/bonus-announcements", {
-                  method: "POST",
-                  body: JSON.stringify({
-                    title: announcementForm.title,
-                    description: announcementForm.description,
-                    amount: Number(announcementForm.amount),
-                    date: announcementForm.date,
-                  }),
-                });
-                if (announcementForm.taskId && announcementForm.bonusOpportunity) {
-                  await apiFetch(`/api/tasks/${announcementForm.taskId}`, {
-                    method: "PUT",
-                    body: JSON.stringify({ bonusOpportunity: announcementForm.bonusOpportunity }),
+            <DialogFooter>
+              <button
+                type="button"
+                className="bg-secondary text-foreground px-4 py-2 rounded-md text-sm font-heading font-medium"
+                onClick={() => setAnnounceOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="bg-bonus text-bonus-foreground px-4 py-2 rounded-md text-sm font-heading font-medium"
+                onClick={async () => {
+                  await apiFetch("/api/bonus-announcements", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      title: announcementForm.title,
+                      description: announcementForm.description,
+                      amount: Number(announcementForm.amount),
+                      date: announcementForm.date,
+                    }),
                   });
-                  await refetchTasks();
-                }
-                setAnnounceOpen(false);
-                setAnnouncementForm({
-                  title: "",
-                  description: "",
-                  amount: "",
-                  date: "",
-                  taskId: "",
-                  bonusOpportunity: "",
-                });
-                await refetchAnnouncements();
-              }}
-            >
-              Add
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                  if (announcementForm.taskId && announcementForm.bonusOpportunity) {
+                    await apiFetch(`/api/tasks/${announcementForm.taskId}`, {
+                      method: "PUT",
+                      body: JSON.stringify({ bonusOpportunity: announcementForm.bonusOpportunity }),
+                    });
+                    await refetchTasks();
+                  }
+                  setAnnounceOpen(false);
+                  setAnnouncementForm({
+                    title: "",
+                    description: "",
+                    amount: "",
+                    date: "",
+                    taskId: "",
+                    bonusOpportunity: "",
+                  });
+                  await refetchAnnouncements();
+                }}
+              >
+                Add
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </div>
   );
 };

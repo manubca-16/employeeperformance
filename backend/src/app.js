@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const authRoutes = require("./routes/auth.routes");
 const usersRoutes = require("./routes/users.routes");
 const employeesRoutes = require("./routes/employees.routes");
+const adminEmployeesRoutes = require("./routes/adminEmployees.routes");
 const tasksRoutes = require("./routes/tasks.routes");
 const uploadTasksRoutes = require("./routes/uploadTasks.routes");
 const bonusesRoutes = require("./routes/bonuses.routes");
@@ -39,6 +40,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/employees", employeesRoutes);
+app.use("/api/admin/employees", adminEmployeesRoutes);
 app.use("/api/tasks", tasksRoutes);
 app.use("/api/upload-tasks", uploadTasksRoutes);
 app.use("/api/bonuses", bonusesRoutes);

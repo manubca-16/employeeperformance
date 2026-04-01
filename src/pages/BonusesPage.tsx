@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useAuth } from "@/context/useAuth";
 import { apiFetch, useApi } from "@/hooks/useApi";
 import { BonusAnnouncement, Employee } from "@/types/models";
-import { Gift } from "lucide-react";
+import { Gift, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { isEmployee, isHighAuthority } from "@/lib/roles";
+import { isEmployee, isSuperAdmin } from "@/lib/roles";
 
 const BonusesPage = () => {
   const { user } = useAuth();
-  const canManageBonuses = isHighAuthority(user?.role);
+  const canManageBonuses = isSuperAdmin(user?.role);
   const { data: announcements } = useApi<BonusAnnouncement[]>("/api/bonus-announcements", []);
   const { data: employees, refetch } = useApi<Employee[]>("/api/employees", []);
   const [bonusOpen, setBonusOpen] = useState(false);
@@ -20,6 +20,18 @@ const BonusesPage = () => {
   });
 
   const awardedEmployees = employees.filter((e) => e.bonus);
+
+  const handleDeleteBonus = async (bonusId: string) => {
+    if (!confirm("Are you sure you want to delete this bonus?")) return;
+    try {
+      await apiFetch(`/api/bonuses/${bonusId}`, {
+        method: "DELETE",
+      });
+      await refetch();
+    } catch (error) {
+      console.error("Failed to delete bonus", error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -67,9 +79,20 @@ const BonusesPage = () => {
                   <p className="font-heading font-medium">{emp.name}</p>
                   <p className="text-sm text-muted-foreground">{emp.bonus?.title}</p>
                 </div>
-                <span className="text-bonus font-heading font-bold">
-                  INR {emp.bonus?.amount.toLocaleString()}
-                </span>
+                <div className="flex items-center gap-4">
+                  <span className="text-bonus font-heading font-bold">
+                    INR {emp.bonus?.amount.toLocaleString()}
+                  </span>
+                  {canManageBonuses && emp.bonus?._id && (
+                    <button
+                      onClick={() => handleDeleteBonus(emp.bonus!._id)}
+                      className="text-muted-foreground hover:text-red-500 transition-colors"
+                      title="Delete Bonus"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

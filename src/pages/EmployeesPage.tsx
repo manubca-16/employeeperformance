@@ -4,7 +4,8 @@ import { apiFetch, useApi } from "@/hooks/useApi";
 import { Employee } from "@/types/models";
 import EmployeeEditDialog from "@/components/EmployeeEditDialog";
 import { Pencil, Trash2 } from "lucide-react";
-import { isHighAuthority } from "@/lib/roles";
+import EmployeeExcelUploadDialog from "@/components/EmployeeExcelUploadDialog";
+import { isHighAuthority, isSuperAdmin } from "@/lib/roles";
 
 const createEmptyEmployee = (): Employee => ({
   _id: "",
@@ -22,20 +23,32 @@ const createEmptyEmployee = (): Employee => ({
 const EmployeesPage = () => {
   const { user } = useAuth();
   const canManageEmployees = isHighAuthority(user?.role);
+  const canUploadViaExcel = isSuperAdmin(user?.role);
   const { data: employees, refetch } = useApi<Employee[]>("/api/employees", []);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-heading font-bold">Employees</h2>
         {canManageEmployees && (
-          <button
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-heading font-medium hover:opacity-90 transition-opacity"
-            onClick={() => setEditingEmployee(createEmptyEmployee())}
-          >
-            Add Employee
-          </button>
+          <div className="flex items-center gap-3">
+            {canUploadViaExcel ? (
+              <button
+                className="bg-secondary text-foreground px-4 py-2 rounded-md text-sm font-heading font-medium hover:opacity-90 transition-opacity"
+                onClick={() => setUploadOpen(true)}
+              >
+                Upload via Excel
+              </button>
+            ) : null}
+            <button
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-heading font-medium hover:opacity-90 transition-opacity"
+              onClick={() => setEditingEmployee(createEmptyEmployee())}
+            >
+              Add Employee
+            </button>
+          </div>
         )}
       </div>
 
@@ -97,6 +110,12 @@ const EmployeesPage = () => {
         employee={editingEmployee}
         onOpenChange={(open) => !open && setEditingEmployee(null)}
         onSaved={refetch}
+      />
+
+      <EmployeeExcelUploadDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        onUploaded={refetch}
       />
     </div>
   );

@@ -23,10 +23,13 @@ export interface Employee {
   _id: string;
   legacyId?: string;
   employeeId?: string;
+  userId?: string;
   name: string;
   email: string;
   role?: Role;
   department: string;
+  salary?: number;
+  bonusEligible?: boolean;
   tasksAssigned: number;
   tasksCompleted: number;
   kpiScore: number;
