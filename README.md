@@ -41,10 +41,11 @@ Backend:
 
 ```text
 employeeperformance-main/
-├─ backend/                 # Express + MongoDB API
-├─ public/                  # Static frontend assets
-├─ src/                     # React frontend
-├─ package.json             # Frontend scripts
+├─ backend/                  # Express + MongoDB API
+├─ frontend/                 # React + Vite frontend
+│  ├─ public/
+│  ├─ src/
+│  └─ package.json
 └─ README.md
 ```
 
@@ -91,9 +92,10 @@ Supported upload behavior:
 
 ## 1. Frontend
 
-From the project root:
+From the `frontend` folder:
 
 ```bash
+cd frontend
 npm install
 ```
 
@@ -153,6 +155,7 @@ npm run seed
 Frontend:
 
 ```bash
+cd frontend
 npm run dev
 npm run build
 npm run lint
@@ -162,6 +165,7 @@ npm run test
 Backend:
 
 ```bash
+cd backend
 npm run dev
 npm run start
 npm run seed
